@@ -57,3 +57,10 @@ Go to `Project Properties -> Java Compiler -> Annotation Processing` and
 enable annotation processing. Then, under `Factory Path`, add the generator
 jar. Click the Advanced button to make sure the processor is recognized by
 eclipse.
+
+Compilation
+===========
+
+In order to generate the jar including its dependencies, use maven:
+
+   mvn assembly:assembly
