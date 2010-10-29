@@ -45,7 +45,7 @@ component with the name `MyPageWID`.
 
 A sane minimal properties file probably looks like this:
 
-   template.folders=src/main/java
+    template.folders=src/main/java
 
 Integration with Eclipse
 ------------------------
@@ -63,4 +63,4 @@ Compilation
 
 In order to generate the jar including its dependencies, use maven:
 
-   mvn assembly:assembly
+    mvn assembly:assembly
