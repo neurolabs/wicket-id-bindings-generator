@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 /**
  * @author Ole Langbehn (ole.langbehn@googlemail.com) (initial creation)
  */
-@Target(value = { ElementType.TYPE })
+@Target( value = { ElementType.TYPE } )
 public @interface HasTemplate {
 
 }

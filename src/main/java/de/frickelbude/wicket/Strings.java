@@ -12,34 +12,38 @@
 package de.frickelbude.wicket;
 
 /**
+ * A static utility class for String operations.
+ * 
  * @author Ole Langbehn (ole.langbehn@googlemail.com) (initial creation)
  */
 public class Strings {
-    
-    public Strings() {
+
+    /**
+     * Hide constructor.
+     */
+    private Strings() {
         // construction is superfluous
     }
-    
-    public static String join(Object[] array, char separator) {
-        if (array == null || array.length <= 0) {
+
+    public static String join( final Object[] array, final char separator ) {
+        if ( array == null || array.length <= 0 ) {
             return "";
         }
 
-        final StringBuilder sb = new StringBuilder(128);
+        final StringBuilder sb = new StringBuilder( 128 );
 
         boolean appendSeparator = false;
-        for ( Object object : array ) {
-            if (appendSeparator) {
-                sb.append(separator);
+        for ( final Object object : array ) {
+            if ( appendSeparator ) {
+                sb.append( separator );
             } else {
                 appendSeparator = true;
             }
             sb.append( object );
-            
+
         }
-        
+
         return sb.toString();
     }
-    
 
 }
