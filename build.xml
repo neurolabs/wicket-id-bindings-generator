@@ -1,0 +1,26 @@
+<project name="wicket-id-bindings-generator" default="compile" basedir="."  xmlns:ivy="antlib:org.apache.ivy.ant">
+    <property file="build.properties" />
+    <target name="compile" description="compile the source " >
+        <mkdir dir="${java.build-dir}" />
+        <ivy:cachepath pathid="compile.path" />
+        <javac srcdir="${java.src-main-dir}" destdir="${java.build-dir}" classpathref="compile.path" />
+    </target>
+
+    <target name="prepare-jar">
+        <copy todir="${java.build-dir}">
+            <fileset dir="src/main/webapp"/>
+        </copy>
+    </target>
+
+    <target name="jar" depends="compile, prepare-jar"
+            description="generate the distribution" >
+
+        <jar jarfile="wicket-id-bindings-generator.jar" basedir="${java.build-dir}"/>
+    </target>
+
+    <target name="clean"
+            description="clean up" >
+        <delete dir="${java.build-dir}"/>
+    </target>
+</project>
+
