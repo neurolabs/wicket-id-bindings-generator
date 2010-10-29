@@ -33,7 +33,7 @@ import javax.tools.StandardLocation;
 public class Config {
     
     private static final String OPTION_TEMPLATE_FOLDERS = "template.folders";
-    private static final String OPTION_TEMPLATE_SUFFIX = "template.suffix";
+    private static final String OPTION_TEMPLATE_EXTENSION = "template.extension";
     private static final String OPTION_TEMPLATE_ENCODING = "template.encoding";
     private static final String OPTION_BINDINGS_SUFFIX = "bindings.suffix";
     private final Map<String, String> _options = new HashMap<String, String>();
@@ -46,7 +46,7 @@ public class Config {
 
     private void loadDefaultOptions() {
         _options.put(OPTION_TEMPLATE_FOLDERS, "");
-        _options.put(OPTION_TEMPLATE_SUFFIX, "html");
+        _options.put(OPTION_TEMPLATE_EXTENSION, "html");
         _options.put(OPTION_TEMPLATE_ENCODING, "UTF-8");
         _options.put(OPTION_BINDINGS_SUFFIX, "WID");
     }
@@ -164,7 +164,7 @@ public class Config {
     }
     
     public String getTemplateSuffix() {
-        return _options.get(OPTION_TEMPLATE_SUFFIX);
+        return _options.get(OPTION_TEMPLATE_EXTENSION);
     }
     
     public String getTemplateEncoding() {
