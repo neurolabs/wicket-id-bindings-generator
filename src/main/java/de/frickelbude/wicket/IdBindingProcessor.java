@@ -19,13 +19,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Generated;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -37,9 +40,6 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import javax.tools.Diagnostic.Kind;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.UnhandledException;
 
 import joist.sourcegen.GClass;
 import joist.sourcegen.GField;
@@ -69,7 +69,7 @@ public class IdBindingProcessor extends AbstractProcessor {
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement type = (TypeElement) element;
                 processingEnv.getMessager().printMessage(Kind.WARNING, "bearbeite: "+type.getQualifiedName());
-                String fileName = StringUtils.replaceChars( type.getQualifiedName().toString(), '.', File.separatorChar) + "." + _config.getTemplateSuffix();
+                String fileName = type.getQualifiedName().toString().replace( '.', File.separatorChar) + "." + _config.getTemplateSuffix();
                 // TODO: Stream wieder schließen
                 InputStream resourceAsStream = null;
                 System.out.println(Arrays.toString( templateFolders ) + templateFolders);
@@ -87,7 +87,7 @@ public class IdBindingProcessor extends AbstractProcessor {
                                 System.out.println("loading template: " + file.getAbsolutePath());
                                 resourceAsStream = new FileInputStream( file );
                             } catch ( FileNotFoundException e ) {
-                                throw new UnhandledException( e );
+                                throw new RuntimeException( e );
                             }
                             break;
                         }
@@ -115,9 +115,14 @@ public class IdBindingProcessor extends AbstractProcessor {
                             }
                         }
                         GClass gClass = new GClass(type.getQualifiedName()+_config.getBindingSuffix());
+                        gClass.getConstructor().setPrivate().body.line("// creation of instances is superfluous");
+                        gClass.addImports(Generated.class);
+                        gClass.addAnnotation( "@Generated(value = \"" + IdBindingProcessor.class.getName() + "\", date = \"" + new SimpleDateFormat("dd MMM yyyy hh:mm").format(new Date()) + "\")" );
                         for ( String string : ids ) {
-                            GField gField = new GField( gClass, string );
-                            gField.initialValue( string );
+                            GField gField = gClass.getField( string );
+                            gField.initialValue( "\"{}\"", string );
+                            gField.setStatic().setFinal().setPublic();
+                            gField.type( String.class );
                         }
                         saveCode(gClass, element);
                     } catch ( IOException e ) {

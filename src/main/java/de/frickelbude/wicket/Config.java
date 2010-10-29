@@ -26,17 +26,12 @@ import javax.tools.FileObject;
 import javax.tools.JavaFileManager.Location;
 import javax.tools.StandardLocation;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Ole Langbehn (ole.langbehn@googlemail.com) (initial creation)
  */
 public class Config {
     
-    private static final Logger LOG = LoggerFactory.getLogger( Config.class );
-
     private static final String OPTION_TEMPLATE_FOLDERS = "template.folders";
     private static final String OPTION_TEMPLATE_SUFFIX = "template.suffix";
     private static final String OPTION_TEMPLATE_ENCODING = "template.encoding";
@@ -59,7 +54,6 @@ public class Config {
     private void loadBindgenDotProperties(ProcessingEnvironment env) {
         File propertiesFile = resolvePropertiesIfExists( env, "wicket-id-bindings-generator.properties" );
         if (propertiesFile != null) {
-            LOG.debug( "properties file found: ", propertiesFile.getAbsolutePath() );
             Map<String, String> properties = loadProperties(env, propertiesFile );
             _options.putAll(filterPaths(properties, propertiesFile.getParentFile()));
         }
@@ -77,13 +71,13 @@ public class Config {
                 }
             }
             if (resolvedFolders.size() > 0) {
-                String joined = StringUtils.join( resolvedFolders, "," );
-                LOG.debug( "adding resolved template folders: ", joined );
+                String joined = Strings.join( resolvedFolders.toArray(), ',' );
                 result.put( OPTION_TEMPLATE_FOLDERS, joined);
             }
         }
         return result;
     }
+    
 
     private void loadAptKeyValueOptions(ProcessingEnvironment env) {
         for (Map.Entry<String, String> entry : env.getOptions().entrySet()) {
@@ -163,7 +157,7 @@ public class Config {
     
     public String[] getTemplateFolders() {
         String templateFolders = _options.get(OPTION_TEMPLATE_FOLDERS);
-        if (!StringUtils.isEmpty( templateFolders )) {
+        if (templateFolders != null && templateFolders.length() > 0) {
             return templateFolders.split( "," );
         }
         return null;
