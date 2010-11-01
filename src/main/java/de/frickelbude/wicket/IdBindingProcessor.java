@@ -39,7 +39,6 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import javax.tools.Diagnostic.Kind;
 import javax.tools.JavaFileObject;
 
 /**
@@ -61,38 +60,52 @@ public class IdBindingProcessor extends AbstractProcessor {
 
     @Override
     public boolean process( final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv ) {
+
         for ( final Element element : roundEnv.getElementsAnnotatedWith( HasTemplate.class ) ) {
+
             if ( element.getKind() == ElementKind.CLASS ) {
+
                 final TypeElement type = (TypeElement) element;
                 final String filePath = getTemplateFilePath( type );
                 final InputStream resourceAsStream = getTemplateStream( filePath, type );
+
                 if ( resourceAsStream != null ) {
+                    if ( _config.getDebug() ) {
+                        LogUtil.note( processingEnv, "processing template with path '%s'.", filePath );
+                    }
                     try {
                         processTemplate( type, resourceAsStream );
                     } finally {
                         try {
                             resourceAsStream.close();
                         } catch ( final IOException e ) {
-                            processingEnv.getMessager().printMessage( Kind.ERROR, e.getMessage(), type );
+                            LogUtil.error( processingEnv, type, e.getMessage() );
                         }
                     }
                 }
+
             }
+
         }
         return true;
     }
 
     private InputStream getTemplateStream( final String filePath, final TypeElement type ) {
+
         InputStream resourceAsStream = null;
         final String[] templateFolders = _config.getTemplateFolders();
+
         if ( templateFolders == null ) {
+
             // from classpath as a last resort
             resourceAsStream = type.getClass().getResourceAsStream( filePath );
+
             if ( resourceAsStream == null ) {
-                processingEnv.getMessager().printMessage( Kind.WARNING,
-                        String.format( "Could not load a template from the classpath using the path '%s'.", filePath ), type );
+                LogUtil.warn( processingEnv, type, "Could not load a template from the classpath using the path '%s'.", filePath );
             }
+
         } else {
+
             for ( final String folder : templateFolders ) {
                 final File file = new File( folder, filePath );
                 if ( file.exists() && file.isFile() && file.canRead() ) {
@@ -104,12 +117,13 @@ public class IdBindingProcessor extends AbstractProcessor {
                     break;
                 }
             }
+
             if ( resourceAsStream == null ) {
-                processingEnv.getMessager().printMessage(
-                        Kind.WARNING,
-                        String.format( "Could not load a template from configured template folders '%s' using the path '%s'.",
-                                Arrays.toString( templateFolders ), filePath ), type );
+                LogUtil.warn( processingEnv, type,
+                        "Could not load a template from configured template folders '%s' using the path '%s'.",
+                        Arrays.toString( templateFolders ), filePath );
             }
+
         }
         return resourceAsStream;
     }
@@ -119,10 +133,14 @@ public class IdBindingProcessor extends AbstractProcessor {
     }
 
     private void processTemplate( final TypeElement type, final InputStream templateAsStream ) {
-        final Pattern idPattern = Pattern.compile( "\\p{javaWhitespace}wicket:id\\p{javaWhitespace}*=\"([^\"]*)\"" );
+
+        final Pattern idPattern =
+                Pattern.compile( "\\p{javaWhitespace}wicket:id\\p{javaWhitespace}*=\\p{javaWhitespace}*\"([^\"]*)\"(\\p{javaWhitespace}|>|/>)" );
         BufferedReader reader;
         final Collection<String> ids = new HashSet<String>();
+
         try {
+
             reader = new BufferedReader( new InputStreamReader( templateAsStream, _config.getTemplateEncoding() ) );
             String currentLine;
             while ( ( currentLine = reader.readLine() ) != null ) {
@@ -130,25 +148,32 @@ public class IdBindingProcessor extends AbstractProcessor {
                 while ( matcher.find() ) {
                     final String id = matcher.group( 1 );
                     ids.add( id );
-                    processingEnv.getMessager().printMessage( Kind.WARNING, "Member gefunden: " + id );
+                    if ( _config.getDebug() ) {
+                        LogUtil.note( processingEnv, "    found wicket id '%s'.", id );
+                    }
                 }
             }
+
             final BindingGenerator bindingGenerator =
                     new BindingGenerator( type.getQualifiedName() + _config.getBindingSuffix(), ids );
             save( bindingGenerator, type );
+
         } catch ( final IOException e ) {
-            processingEnv.getMessager().printMessage( Kind.ERROR, e.getMessage(), type );
+            LogUtil.error( processingEnv, type, e.getMessage() );
         }
+
     }
 
     private void save( final BindingGenerator generator, final Element element ) {
+
         try {
             final JavaFileObject jfo = processingEnv.getFiler().createSourceFile( generator.getClassName() );
             final Writer w = jfo.openWriter();
             w.write( generator.getCode() );
             w.close();
         } catch ( final IOException io ) {
-            processingEnv.getMessager().printMessage( Kind.ERROR, io.getMessage(), element );
+            LogUtil.error( processingEnv, element, io.getMessage() );
         }
+
     }
 }

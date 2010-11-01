@@ -42,6 +42,7 @@ to UTF-8.
 `WID`. If e.g. there is a wicket component with a template ant the name
 `MyPage`, the generated binding will be generated in the package of the
 component with the name `MyPageWID`.
+* `debug` - if set to `true`, debug messages are output while processing.
 
 A sane minimal properties file probably looks like this:
 
@@ -64,3 +65,12 @@ Compilation
 In order to generate the jar including its dependencies, use maven:
 
     mvn assembly:assembly
+
+Known Limitations
+=================
+
+The wicket ids in the templates are located via a regexp, the template is not
+parsed as xml. Therefore the wicket namespace must be used for the wicket id
+attribute.
+
+    <div wicket:id="myWicketId"/>

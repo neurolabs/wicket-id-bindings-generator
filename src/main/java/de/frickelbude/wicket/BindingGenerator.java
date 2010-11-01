@@ -31,9 +31,7 @@ import joist.sourcegen.GField;
  */
 public class BindingGenerator {
 
-    private final String _name;
-    private final Collection<String> _fields;
-    private GClass _gClass;
+    private final GClass _gClass;
 
     /**
      * Constructor.
@@ -42,23 +40,21 @@ public class BindingGenerator {
      * @param fields
      */
     public BindingGenerator( final String name, final Collection<String> fields ) {
-        _name = name;
-        _fields = fields;
-        constructClass();
+        _gClass = constructClass( name, fields );
     }
 
-    private void constructClass() {
-        _gClass = new GClass( _name );
-        _gClass.getConstructor().setPrivate().body.line( "// creation of instances is superfluous" );
-        _gClass.addImports( Generated.class );
-        _gClass.addAnnotation( "@Generated(value = \"" + IdBindingProcessor.class.getName() + "\", date = \""
+    private GClass constructClass( final String name, final Collection<String> fields ) {
+        final GClass gClass = new GClass( name );
+        gClass.setInterface();
+        gClass.addImports( Generated.class );
+        gClass.addAnnotation( "@Generated(value = \"" + IdBindingProcessor.class.getName() + "\", date = \""
                 + new SimpleDateFormat( "yyyy/MM/dd  HH:mm" ).format( new Date() ) + "\")" );
-        for ( final String field : _fields ) {
-            final GField gField = _gClass.getField( field );
-            gField.initialValue( "\"{}\"", field );
+        for ( final String field : fields ) {
+            final GField gField = gClass.getField( field );
+            gField.type( String.class ).initialValue( "\"{}\"", field );
             gField.setStatic().setFinal().setPublic();
-            gField.type( String.class );
         }
+        return gClass;
     }
 
     /**

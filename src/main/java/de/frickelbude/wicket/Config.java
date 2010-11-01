@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager.Location;
 import javax.tools.StandardLocation;
@@ -44,6 +43,7 @@ public class Config {
     private static final String OPTION_TEMPLATE_EXTENSION = "template.extension";
     private static final String OPTION_TEMPLATE_ENCODING = "template.encoding";
     private static final String OPTION_BINDINGS_SUFFIX = "bindings.suffix";
+    private static final String OPTION_DEBUG = "debug";
     private final Map<String, String> _options = new HashMap<String, String>();
 
     /**
@@ -64,6 +64,7 @@ public class Config {
         _options.put( OPTION_TEMPLATE_EXTENSION, "html" );
         _options.put( OPTION_TEMPLATE_ENCODING, "UTF-8" );
         _options.put( OPTION_BINDINGS_SUFFIX, "WID" );
+        _options.put( OPTION_DEBUG, "false" );
     }
 
     private void loadDotProperties( final ProcessingEnvironment env ) {
@@ -109,13 +110,13 @@ public class Config {
             inputStream = new FileInputStream( propertiesFile );
             p.load( inputStream );
         } catch ( final Exception e ) {
-            env.getMessager().printMessage( Kind.ERROR, e.getMessage() );
+            LogUtil.error( env, e.getMessage() );
         } finally {
             if ( inputStream != null ) {
                 try {
                     inputStream.close();
                 } catch ( final IOException e ) {
-                    env.getMessager().printMessage( Kind.ERROR, e.getMessage() );
+                    LogUtil.error( env, e.getMessage() );
                 }
             }
         }
@@ -209,6 +210,13 @@ public class Config {
      */
     public String getBindingSuffix() {
         return _options.get( OPTION_BINDINGS_SUFFIX );
+    }
+
+    /**
+     * Gets the configuration option "binding.suffix".
+     */
+    public boolean getDebug() {
+        return Boolean.parseBoolean( _options.get( OPTION_DEBUG ) );
     }
 
 }

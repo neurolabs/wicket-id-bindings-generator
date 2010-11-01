@@ -4,9 +4,8 @@
   <groupId>de.frickelbude</groupId>
   <artifactId>wicket-id-bindings-generator</artifactId>
   <packaging>jar</packaging>
-  <version>0</version>
+  <version>0.1</version>
   <name>wicket-id-bindings-generator</name>
-  <url>http://maven.apache.org</url>
   <repositories>
     <repository>
       <id>repo1</id>
