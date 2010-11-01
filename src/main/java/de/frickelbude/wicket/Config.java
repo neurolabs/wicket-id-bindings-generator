@@ -1,13 +1,17 @@
 /*
- * $Id$
- * (c) Copyright 2010 atcard.de
- *
- * Created on 28.10.2010 by Ole Langbehn (ole.langbehn@googlemail.com)
- *
- * This file contains unpublished, proprietary trade secret information of
- * atcard.de. Use, transcription, duplication and
- * modification are strictly prohibited without prior written consent of
- * atcard.de.
+ * Copyright 2010 frickelbude.de
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package de.frickelbude.wicket;
 
@@ -23,11 +27,15 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager.Location;
 import javax.tools.StandardLocation;
 
 /**
+ * Provides configuration settings for the processor. The settings are read from
+ * a property file and the apt options.
+ * 
  * @author Ole Langbehn (ole.langbehn@googlemail.com) (initial creation)
  */
 public class Config {
@@ -38,10 +46,17 @@ public class Config {
     private static final String OPTION_BINDINGS_SUFFIX = "bindings.suffix";
     private final Map<String, String> _options = new HashMap<String, String>();
 
+    /**
+     * Constructs a configuration.
+     * 
+     * @param env
+     *            the processing environment from whicht the apt options are
+     *            read.
+     */
     public Config( final ProcessingEnvironment env ) {
         this.loadDefaultOptions();
         this.loadAptKeyValueOptions( env );
-        this.loadBindgenDotProperties( env );
+        this.loadDotProperties( env );
     }
 
     private void loadDefaultOptions() {
@@ -51,7 +66,7 @@ public class Config {
         _options.put( OPTION_BINDINGS_SUFFIX, "WID" );
     }
 
-    private void loadBindgenDotProperties( final ProcessingEnvironment env ) {
+    private void loadDotProperties( final ProcessingEnvironment env ) {
         final File propertiesFile = resolvePropertiesIfExists( env, "wicket-id-bindings-generator.properties" );
         if ( propertiesFile != null ) {
             final Map<String, String> properties = loadProperties( env, propertiesFile );
@@ -84,9 +99,6 @@ public class Config {
         }
     }
 
-    /*
-     * from here the rest of the class is humbly taken from bindgens ConfUtil.
-     */
     /** Attempts to load {@code fileName} and return its properties. */
     public static Map<String, String> loadProperties( final ProcessingEnvironment env, final File propertiesFile ) {
         final Map<String, String> properties = new LinkedHashMap<String, String>();
@@ -97,13 +109,13 @@ public class Config {
             inputStream = new FileInputStream( propertiesFile );
             p.load( inputStream );
         } catch ( final Exception e ) {
-            e.printStackTrace();
+            env.getMessager().printMessage( Kind.ERROR, e.getMessage() );
         } finally {
             if ( inputStream != null ) {
                 try {
                     inputStream.close();
-                } catch ( IOException e ) {
-                    e.printStackTrace();
+                } catch ( final IOException e ) {
+                    env.getMessager().printMessage( Kind.ERROR, e.getMessage() );
                 }
             }
         }
@@ -115,7 +127,7 @@ public class Config {
     }
 
     /**
-     * Finds a file by starting by <code>location</code> and walkig up.
+     * Finds a file by starting by <code>location</code> and walking up.
      * 
      * This uses a heuristic because in Eclipse we will not know what our
      * working directory is (it is wherever Eclipse was started from), so
@@ -165,22 +177,36 @@ public class Config {
         return null;
     }
 
+    /**
+     * Getter for the configuration option "template.folders".
+     * 
+     * @return The configured template folders as an array split on commmas.
+     */
     public String[] getTemplateFolders() {
         final String templateFolders = _options.get( OPTION_TEMPLATE_FOLDERS );
         if ( templateFolders != null && templateFolders.length() > 0 ) {
             return templateFolders.split( "," );
         }
-        return null;
+        return new String[] { };
     }
 
-    public String getTemplateSuffix() {
+    /**
+     * Gets the configuration option "template.extension".
+     */
+    public String getTemplateExtension() {
         return _options.get( OPTION_TEMPLATE_EXTENSION );
     }
 
+    /**
+     * Gets the configuration option "template.encoding".
+     */
     public String getTemplateEncoding() {
         return _options.get( OPTION_TEMPLATE_ENCODING );
     }
 
+    /**
+     * Gets the configuration option "binding.suffix".
+     */
     public String getBindingSuffix() {
         return _options.get( OPTION_BINDINGS_SUFFIX );
     }
