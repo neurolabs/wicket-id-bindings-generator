@@ -4,7 +4,7 @@
   <groupId>de.frickelbude</groupId>
   <artifactId>wicket-id-bindings-generator</artifactId>
   <packaging>jar</packaging>
-  <version>0.1</version>
+  <version>0.2-SNAPSHOT</version>
   <name>wicket-id-bindings-generator</name>
   <repositories>
     <repository>
