@@ -50,7 +50,7 @@ public class BindingGenerator {
         gClass.setInterface();
         gClass.addImports( Generated.class );
         gClass.addAnnotation( "@Generated(value = \"" + generatorClass.getName() + "\", date = \""
-                + new SimpleDateFormat( "yyyy/MM/dd  HH:mm" ).format( new Date() ) + "\")" );
+                + new SimpleDateFormat( "yyyy/MM/dd HH:mm" ).format( new Date() ) + "\")" );
         for ( final String field : fields ) {
             validFieldName( field );
 
