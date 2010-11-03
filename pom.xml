@@ -63,4 +63,14 @@
     <url>scm:git:git@github.com:neurolabs/wicket-id-bindings-generator.git</url>
     <developerConnection>scm:git:git@github.com:neurolabs/wicket-id-bindings-generator.git</developerConnection>  
   </scm>
+  <!-- setup sometime https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide
+distributionManagement>
+    <repository>
+      <uniqueVersion>false</uniqueVersion>
+      <id>repo1</id>
+      <name>DCE-Repository</name>
+      <url>http://localhost:8080/artifactory/repo1</url>
+      <layout>default</layout>
+    </repository>
+  </distributionManagement-->
 </project>
