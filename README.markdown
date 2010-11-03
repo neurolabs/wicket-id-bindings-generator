@@ -84,11 +84,3 @@ In order to generate the jar, use maven:
 
     mvn package
 
-Known Limitations
-=================
-
-The wicket ids in the templates are located via a regexp, the template is not
-parsed as xml. Therefore the wicket namespace must be used for the wicket id
-attribute.
-
-    <div wicket:id="myWicketId"/>
