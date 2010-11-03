@@ -39,22 +39,30 @@ public class BindingGenerator {
      * @param name
      * @param fields
      */
-    public BindingGenerator( final String name, final Collection<String> fields ) {
-        _gClass = constructClass( name, fields );
+    public BindingGenerator( final String name, final Collection<String> fields,
+            final Class<? extends AbstractBindingProcessor> generatorClass ) {
+        _gClass = constructClass( name, fields, generatorClass );
     }
 
-    private GClass constructClass( final String name, final Collection<String> fields ) {
+    private GClass constructClass( final String name, final Collection<String> fields,
+            final Class<? extends AbstractBindingProcessor> generatorClass ) {
         final GClass gClass = new GClass( name );
         gClass.setInterface();
         gClass.addImports( Generated.class );
-        gClass.addAnnotation( "@Generated(value = \"" + IdBindingProcessor.class.getName() + "\", date = \""
+        gClass.addAnnotation( "@Generated(value = \"" + generatorClass.getName() + "\", date = \""
                 + new SimpleDateFormat( "yyyy/MM/dd  HH:mm" ).format( new Date() ) + "\")" );
         for ( final String field : fields ) {
-            final GField gField = gClass.getField( field );
+            validFieldName( field );
+
+            final GField gField = gClass.getField( validFieldName( field ) );
             gField.type( String.class ).initialValue( "\"{}\"", field );
             gField.setStatic().setFinal().setPublic();
         }
         return gClass;
+    }
+
+    private String validFieldName( final String field ) {
+        return field.replaceAll( "[^a-zA-Z0-9_$]", "_" ).replaceAll( "^[0-9]+", "_" );
     }
 
     /**

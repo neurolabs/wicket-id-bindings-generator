@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -39,10 +40,17 @@ import javax.tools.StandardLocation;
  */
 public class Config {
 
-    private static final String OPTION_TEMPLATE_FOLDERS = "template.folders";
+    private static final String OPTION_SOURCE_FOLDERS = "source.folders";
+    private static final String OPTION_SOURCE_ENCODING = "source.encoding";
+
+    private static final String OPTION_TEMPLATE_ENABLED = "template.enabled";
     private static final String OPTION_TEMPLATE_EXTENSION = "template.extension";
-    private static final String OPTION_TEMPLATE_ENCODING = "template.encoding";
-    private static final String OPTION_BINDINGS_SUFFIX = "bindings.suffix";
+    private static final String OPTION_TEMPLATE_BINDINGSUFFIX = "template.bindingsuffix";
+
+    private static final String OPTION_TRANSLATION_ENABLED = "translation.enabled";
+    private static final String OPTION_TRANSLATION_BINDINGSUFFIX = "translation.bindingsuffix";
+    private static final String OPTION_TRANSLATION_TYPE = "translation.type";
+
     private static final String OPTION_DEBUG = "debug";
     private final Map<String, String> _options = new HashMap<String, String>();
 
@@ -60,10 +68,17 @@ public class Config {
     }
 
     private void loadDefaultOptions() {
-        _options.put( OPTION_TEMPLATE_FOLDERS, "" );
+        _options.put( OPTION_SOURCE_FOLDERS, "" );
+        _options.put( OPTION_SOURCE_ENCODING, "UTF-8" );
+
+        _options.put( OPTION_TEMPLATE_ENABLED, "true" );
         _options.put( OPTION_TEMPLATE_EXTENSION, "html" );
-        _options.put( OPTION_TEMPLATE_ENCODING, "UTF-8" );
-        _options.put( OPTION_BINDINGS_SUFFIX, "WID" );
+        _options.put( OPTION_TEMPLATE_BINDINGSUFFIX, "WID" );
+
+        _options.put( OPTION_TRANSLATION_ENABLED, "true" );
+        _options.put( OPTION_TRANSLATION_TYPE, "properties" );
+        _options.put( OPTION_TRANSLATION_BINDINGSUFFIX, "I18N" );
+
         _options.put( OPTION_DEBUG, "false" );
     }
 
@@ -76,11 +91,11 @@ public class Config {
     }
 
     private Map<String, String> filterPaths( final Map<String, String> properties, final File baseDir ) {
-        final String templateFolders = properties.get( OPTION_TEMPLATE_FOLDERS );
+        final String sourceFolders = properties.get( OPTION_SOURCE_FOLDERS );
         final Map<String, String> result = new HashMap<String, String>( properties );
         final List<String> resolvedFolders = new LinkedList<String>();
-        if ( templateFolders != null ) {
-            for ( final String templateFolder : templateFolders.split( "," ) ) {
+        if ( sourceFolders != null ) {
+            for ( final String templateFolder : sourceFolders.split( "," ) ) {
                 final File file = new File( baseDir, templateFolder );
                 if ( file.exists() && file.isDirectory() ) {
                     resolvedFolders.add( file.getAbsolutePath() );
@@ -88,7 +103,7 @@ public class Config {
             }
             if ( resolvedFolders.size() > 0 ) {
                 final String joined = Strings.join( resolvedFolders.toArray(), ',' );
-                result.put( OPTION_TEMPLATE_FOLDERS, joined );
+                result.put( OPTION_SOURCE_FOLDERS, joined );
             }
         }
         return result;
@@ -179,16 +194,30 @@ public class Config {
     }
 
     /**
-     * Getter for the configuration option "template.folders".
+     * Getter for the configuration option "source.folders".
      * 
      * @return The configured template folders as an array split on commmas.
      */
-    public String[] getTemplateFolders() {
-        final String templateFolders = _options.get( OPTION_TEMPLATE_FOLDERS );
-        if ( templateFolders != null && templateFolders.length() > 0 ) {
-            return templateFolders.split( "," );
+    public String[] getSourceFolders() {
+        final String sourceFolders = _options.get( OPTION_SOURCE_FOLDERS );
+        if ( sourceFolders != null && sourceFolders.length() > 0 ) {
+            return sourceFolders.split( "," );
         }
         return new String[] { };
+    }
+
+    /**
+     * Gets the configuration option "source.encoding".
+     */
+    public String getSourceEncoding() {
+        return _options.get( OPTION_SOURCE_ENCODING );
+    }
+
+    /**
+     * Gets the configuration option "template.enabled".
+     */
+    public boolean getTemplateEnabled() {
+        return Boolean.parseBoolean( _options.get( OPTION_TEMPLATE_ENABLED ) );
     }
 
     /**
@@ -199,21 +228,35 @@ public class Config {
     }
 
     /**
-     * Gets the configuration option "template.encoding".
+     * Gets the configuration option "template.bindingsuffix".
      */
-    public String getTemplateEncoding() {
-        return _options.get( OPTION_TEMPLATE_ENCODING );
+    public String getTemplateBindingSuffix() {
+        return _options.get( OPTION_TEMPLATE_BINDINGSUFFIX );
     }
 
     /**
-     * Gets the configuration option "binding.suffix".
+     * Gets the configuration option "translation.enabled".
      */
-    public String getBindingSuffix() {
-        return _options.get( OPTION_BINDINGS_SUFFIX );
+    public boolean getTranslationEnabled() {
+        return Boolean.parseBoolean( _options.get( OPTION_TRANSLATION_ENABLED ) );
     }
 
     /**
-     * Gets the configuration option "binding.suffix".
+     * Gets the configuration option "translation.type".
+     */
+    public TranslationType getTranslationType() {
+        return TranslationType.valueOf( _options.get( OPTION_TRANSLATION_TYPE ).toUpperCase( Locale.getDefault() ) );
+    }
+
+    /**
+     * Gets the configuration option "translation.bindingsuffix".
+     */
+    public String getTranslationBindingSuffix() {
+        return _options.get( OPTION_TRANSLATION_BINDINGSUFFIX );
+    }
+
+    /**
+     * Gets the configuration option "debug".
      */
     public boolean getDebug() {
         return Boolean.parseBoolean( _options.get( OPTION_DEBUG ) );

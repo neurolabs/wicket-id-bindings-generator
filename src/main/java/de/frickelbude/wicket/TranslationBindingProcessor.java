@@ -32,29 +32,47 @@ import de.frickelbude.wicket.AbstractBindingProcessor.ClassHandler;
  * 
  * @author Ole Langbehn (ole.langbehn@googlemail.com) (initial creation)
  */
-@SupportedAnnotationTypes( { "de.frickelbude.wicket.HasTemplate" } )
+@SupportedAnnotationTypes( { "de.frickelbude.wicket.HasTranslation" } )
 @SupportedSourceVersion( SourceVersion.RELEASE_6 )
-public class IdBindingProcessor extends AbstractBindingProcessor implements ClassHandler {
+public class TranslationBindingProcessor extends AbstractBindingProcessor implements ClassHandler {
 
     @Override
     public boolean process( final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv ) {
-        if ( config.getTemplateEnabled() ) {
-            handleAnnotatedClasses( HasTemplate.class, roundEnv, this );
+        if ( config.getTranslationEnabled() ) {
+            handleAnnotatedClasses( HasTranslation.class, roundEnv, this );
         }
         return true;
     }
 
     @Override
     public void handle( final TypeElement type ) {
-        final String filePath = getPath( type, config.getTemplateExtension() );
+
+        TranslationType trType = null;
+        try {
+            trType = config.getTranslationType();
+        } catch ( final IllegalArgumentException e ) {
+            LogUtil.error( processingEnv, type, "Configured translation type unknown." );
+            return;
+        }
+
+        final String filePath = getPath( type, trType.getExtension() );
         final InputStream resourceAsStream = getStream( filePath, type );
 
         if ( resourceAsStream != null ) {
             if ( config.getDebug() ) {
-                LogUtil.note( processingEnv, "processing template with path '%s'.", filePath );
+                LogUtil.note( processingEnv, "processing translation with path '%s'.", filePath );
             }
             try {
-                processFile( type, new XPathExtractor( resourceAsStream, "//*/@wicket:id" ), config.getTemplateBindingSuffix() );
+                MemberExtractor extractor = null;
+                switch ( trType ) {
+                    case XML:
+                        extractor = new XPathExtractor( resourceAsStream, "//entry/@key" );
+                        break;
+                    case PROPERTIES:
+                        extractor = new PropertiesKeyExtractor( resourceAsStream, config.getSourceEncoding() );
+                        break;
+                }
+                processFile( type, extractor, config.getTranslationBindingSuffix() );
             } finally {
                 try {
                     resourceAsStream.close();
