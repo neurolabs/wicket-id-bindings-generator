@@ -15,8 +15,8 @@ Java 1.6 compiler (for service provider support).
 Dependencies
 ============
 
-* joist util - http://joist.ws/codeGeneration.html.
-    * slf4j. 
+* joist util 0.5 - http://joist.ws/codeGeneration.html.
+    * slf4j (required by joist) 
 
 Usage
 =====
