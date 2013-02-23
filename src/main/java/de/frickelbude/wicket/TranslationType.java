@@ -15,18 +15,24 @@
  */
 package de.frickelbude.wicket;
 
-import java.util.Locale;
 
 /**
  * Defines the possible types of wicket translation files.
  * 
  * @author Ole Langbehn (ole.langbehn@googlemail.com) (initial creation)
+ * @author Sebastian Gaul (sgaul@milabent.de)
  */
 public enum TranslationType {
-        XML,
-        PROPERTIES;
+        XML("properties.xml"),
+        PROPERTIES("properties");
+    
+    private final String _extension;
+        
+    private TranslationType(String extension) {
+		_extension = extension;
+	}
 
     public String getExtension() {
-        return name().toLowerCase( Locale.getDefault() );
+        return _extension;
     }
 }
