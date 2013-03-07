@@ -60,7 +60,12 @@ defaults to `true`.
 defaults to `I18N`.
 * `translation.type` - the file types of the translation files. Can be either
 `xml` or `properties`, defaults to `properties`.
+    * XML files are expected to end with `.properties.xml`, which is the 
+      [default setting since Wicket 1.5](migrationguide). If you need support
+      for the older `.xml` extension check out the previous version.
 * `debug` - if set to `true`, debug messages are logged while processing.
+
+[migrationguide]: https://cwiki.apache.org/WICKET/migration-to-wicket-15.html#MigrationtoWicket1.5-XMLbasedpropertyfiles  "Migrating to Wicket 1.5"
 
 A sane minimal properties file probably looks like this:
 
